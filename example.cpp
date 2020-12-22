@@ -3,8 +3,10 @@
 
 int main(int argc, char** argv) {
     CLIWidget::time_widget();
+    NEWLINE
+    PUT(CLIWidget::convert(BRANCH_SIGN) + "  ")
     
-    std::cout << "\n";
+    CLIWidget::branch_widget();
     
     return 0;
 }

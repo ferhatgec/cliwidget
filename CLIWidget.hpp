@@ -8,18 +8,39 @@
 #ifndef CLI_WIDGET_HPP
 #define CLI_WIDGET_HPP
 
+
 #include <iostream>
 #include <string> 
 #include <ctime>
 #include <cstdlib>
+
 
 /* Fegeya CLIWidget library
    * Easy-to-use CLI widgets.
    
    * Supported widget(s):
       - Clock. 24h | 12h
+      - Branch git | mercurial
 */
 
+#define PUT(str) std::cout << str;
+
+#define NEWLINE PUT('\n')
+
+/* add -DBRANCH=1 and lstdc++fs flag to use */
+#if BRANCH
+	#include <filesystem>
+	#include <fstream>
+	
+	/* branch detector supports mercurial & git */
+	#define BRANCH_SIGN "⎇"
+
+	#define MERCURIAL BRANCH_SIGN
+	#define GIT       BRANCH_SIGN
+
+	#define GET_GIT_BRANCH       "git branch | grep \"^\\*\" | sed 's/^..//'"
+	#define GET_MERCURIAL_BRANCH "hg branch"
+#endif
 
 class Time {
 public:
@@ -73,6 +94,41 @@ namespace CLIWidget {
 			CLIWidget::time_widget_main(i_time, minute, time, false);
 		}
 	}
+	
+	#if BRANCH
+		std::string convert(const char* t) {
+    		return t;
+		}
+
+		std::string command_output(const std::string& command) {
+    		/* print output of command to file */
+    		system((command + " > execute_temp.txt").c_str());
+ 
+ 			/* read file */
+    		std::ifstream ifs("execute_temp.txt");
+    		
+    		std::string ret { 
+    			std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>() 
+    		};
+    		
+    		ifs.close(); 
+    		
+    		if(std::remove("execute_temp.txt") != 0) {
+        		ret = "cli_widget_error";	
+    		}
+    		
+    		return ret;
+		}
+ 
+ 
+		void branch_widget() {
+			if(std::filesystem::exists(".hg")) {
+				std::cout << CLIWidget::command_output(convert(GET_MERCURIAL_BRANCH));
+			} else if(std::filesystem::exists(".git")) {
+				std::cout << CLIWidget::command_output(convert(GET_GIT_BRANCH));
+			}
+		}
+	#endif
 }
 
 #endif // CLI_WIDGET_HPP
