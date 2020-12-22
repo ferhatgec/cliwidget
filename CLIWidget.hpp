@@ -27,11 +27,20 @@
 
 #define NEWLINE PUT('\n')
 
+#define SUNSET_OVER_BUILDINGS "🌇"
+
 /* add -DBRANCH=1 and lstdc++fs flag to use */
 #if BRANCH
 	#include <filesystem>
 	#include <fstream>
-	
+
+	/* from timeplusplus library */
+	typedef struct {
+		unsigned days;
+		unsigned hours;
+		unsigned minutes;
+	} timepp_t;
+
 	/* branch detector supports mercurial & git */
 	#define BRANCH_SIGN "⎇"
 
@@ -96,10 +105,14 @@ namespace CLIWidget {
 	}
 	
 	#if BRANCH
-		std::string convert(const char* t) {
-    		return t;
+		std::string convert(const char* data) {
+    		return data;
 		}
-
+		
+		std::string convert(int data) {
+    		return std::to_string(data);
+		}
+		
 		std::string command_output(const std::string& command) {
     		/* print output of command to file */
     		system((command + " > execute_temp.txt").c_str());
@@ -120,13 +133,41 @@ namespace CLIWidget {
     		return ret;
 		}
  
- 
 		void branch_widget() {
 			if(std::filesystem::exists(".hg")) {
-				std::cout << CLIWidget::command_output(convert(GET_MERCURIAL_BRANCH));
+				PUT(CLIWidget::command_output(convert(GET_MERCURIAL_BRANCH)));
 			} else if(std::filesystem::exists(".git")) {
-				std::cout << CLIWidget::command_output(convert(GET_GIT_BRANCH));
+				PUT(CLIWidget::command_output(convert(GET_GIT_BRANCH)));
 			}
+		}
+
+		timepp_t time_init() {
+			std::ifstream file("/proc/uptime");
+			std::string line;
+			timepp_t time;
+		
+    		int d, h, m, s;
+
+    		if (!file.is_open()) return time;
+
+			while(std::getline(file, line)) { s = atoi(line.c_str()); } 
+		
+    		d = s / 60 / 60 / 24;
+    		h = s / 60 / 60 % 24;
+    		m = s / 60 % 60;
+
+    		if(d ^ 0) time.days    = d; 
+    		if(h ^ 0) time.hours   = h;
+    		if(m ^ 0) time.minutes = m;
+    	
+    		return time;
+		}
+		
+		
+		void uptime_widget() {
+			timepp_t time = time_init();
+			
+			PUT(convert(time.hours) + "h " + convert(time.minutes) + "m")
 		}
 	#endif
 }
