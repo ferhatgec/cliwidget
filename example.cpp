@@ -12,5 +12,8 @@ int main(int argc, char** argv) {
     CLIWidget::uptime_widget();
     NEWLINE
 
+    CLIWidget::internet_connection_widget();
+    NEWLINE
+
     return 0;
 }

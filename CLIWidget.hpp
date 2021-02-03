@@ -28,6 +28,7 @@
 #define NEWLINE PUT('\n')
 
 #define SUNSET_OVER_BUILDINGS "🌇"
+#define INTERNET              "🌐"
 
 /* add -DBRANCH=1 and lstdc++fs flag to use */
 #if BRANCH
@@ -170,6 +171,12 @@ namespace CLIWidget {
 			PUT(convert(time.hours) + "h " + convert(time.minutes) + "m")
 		}
 	#endif
+	
+	void internet_connection_widget() {
+	    if(system("wget -q -t=1 -O /dev/null --no-cache http://www.google.com/") == 0) {
+	        PUT(INTERNET)
+	    }
+	}
 }
 
 #endif // CLI_WIDGET_HPP
